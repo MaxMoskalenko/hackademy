@@ -5,7 +5,11 @@
 #include <string.h>
 #include "test.h"
 
+<<<<<<< HEAD
 void   test_small()
+=======
+void  test_small()
+>>>>>>> e8472f2 (ex03 solution)
 {
   char buf[32];
 
