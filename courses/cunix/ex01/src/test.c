@@ -6,10 +6,14 @@
 #include "test.h"
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 void   test_small()
 =======
 void test_small()
 >>>>>>> bfe0255 (ex01 solution)
+=======
+void test_small()
+>>>>>>> e8472f2fab3ed6218f023c04a4bd7c9d7487d22b
 {
   assert(my_strlen("") == 0);
   assert(my_strlen("0") == 1);
@@ -19,10 +23,14 @@ void test_small()
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 void   test_long()
 =======
 void test_long()
 >>>>>>> bfe0255 (ex01 solution)
+=======
+void test_long()
+>>>>>>> e8472f2fab3ed6218f023c04a4bd7c9d7487d22b
 {
   assert(my_strlen("uhohthoa1iath6Vagae8ahchoiyie0voo1Chie7iesh2eed6ua9") == 51);
   assert(my_strlen("luuch6iev0uuGhahwa6kochuiga3aok3aebeigii1xee9cue6ooz") == 52);
@@ -34,10 +42,14 @@ void test_long()
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 void   test_very()
 =======
 void test_very()
 >>>>>>> bfe0255 (ex01 solution)
+=======
+void test_very()
+>>>>>>> e8472f2fab3ed6218f023c04a4bd7c9d7487d22b
 {
   assert(my_strlen("ohnema2Fohweicho9AiShoh9reih9thae7eP7ooquohce0iechix8AhKaizu2Eebais6eex5phi7Noosohsh3AiWaequo1yaethoo9Vohghipainaed5Choh5ae") == 123);
   assert(my_strlen("OHNEMA2FOHWEICHO9AISHOH9REIH9THAE7EP7OOQUOHCE0IECHIX8AHKAIZU2EEBAIS6EEX5PHI7NOOSOHSH3AIWAEQUO1YAETHOO9VOHGHIPAINAED5CHOH5AE") == 123);
@@ -46,10 +58,14 @@ void test_very()
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 int   main()
 =======
 int main()
 >>>>>>> bfe0255 (ex01 solution)
+=======
+int main()
+>>>>>>> e8472f2fab3ed6218f023c04a4bd7c9d7487d22b
 {
   test_small();
   test_long();

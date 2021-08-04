@@ -6,10 +6,14 @@
 #include "test.h"
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 void   test_small()
 =======
 void  test_small()
 >>>>>>> e8472f2 (ex03 solution)
+=======
+void  test_small()
+>>>>>>> e8472f2fab3ed6218f023c04a4bd7c9d7487d22b
 {
   char buf[32];
 
