@@ -130,7 +130,7 @@ void *list_shift(node_t **head){
     void* data = tmp->data;
 
     *head = tmp->next;
-
+    free(tmp->data);
     free(tmp);
     return data;
 }
@@ -176,7 +176,7 @@ void *list_remove(node_t **head, int pos){
 void list_visitor(node_t *head, void (*fp)(void *data)){
     node_t* ptr = head;
     while(ptr != NULL){
-        fp(ptr);
+        fp(ptr->data);
         ptr = ptr->next;
     }
 }
