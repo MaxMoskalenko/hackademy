@@ -29,6 +29,7 @@ void *ft_memmove(void *dst, const void *src, size_t len);
 void *ft_memchr(const void *s, int c, size_t n);
 int ft_memcmp(const void *s1, const void *s2, size_t n);
 
+<<<<<<< HEAD
 void ft_striter(char* s, void (*f)(char*));
 char* ft_strmap(char const *s, char (*f)(char));
 char* ft_strsub(char const *s, unsigned int start, size_t len);
@@ -37,5 +38,8 @@ char* ft_strtrim(char const *s);
 char** ft_strsplit(char const *s, char c);
 
 int ft_printf(char *format, ...);
+=======
+
+>>>>>>> 2add02c (Solution day 2)
 #endif
 
