@@ -1,7 +1,9 @@
 package main
 
 import (
+	"crypto/md5"
 	"errors"
+	"os"
 	"sync"
 )
 
@@ -11,15 +13,28 @@ type InMemoryUserStorage struct {
 }
 
 func NewInMemoryUserStorage() *InMemoryUserStorage {
+
+	passwordDigest := md5.New().Sum([]byte(os.Getenv("CAKE_ADMIN_PASSWORD")))
+	sa := User{
+		Email:          os.Getenv("CAKE_ADMIN_EMAIL"),
+		PasswordDigest: string(passwordDigest),
+		Role:           "superadmin",
+		FavoriteCake:   "BiscuitCake",
+		IsBan:          false,
+	}
+
+	newStorage := make(map[string]User)
+	newStorage[os.Getenv("CAKE_ADMIN_EMAIL")] = sa
+
 	return &InMemoryUserStorage{
 		lock:    sync.RWMutex{},
-		storage: make(map[string]User),
+		storage: newStorage,
 	}
 }
 
 func (userStorage InMemoryUserStorage) Add(key string, u User) error {
 	_, ok := userStorage.storage[key]
-	if ok {
+	if ok || u.Email == os.Getenv("CAKE_ADMIN_EMAIL") {
 		err := errors.New("this user is already exists")
 		return err
 	}
@@ -32,11 +47,7 @@ func (userStorage InMemoryUserStorage) Get(key string) (User, error) {
 		return u, nil
 	}
 	err := errors.New("there is no such user")
-	empty := User{
-		Email:          "",
-		PasswordDigest: "",
-		FavoriteCake:   "",
-	}
+	empty := User{}
 	return empty, err
 }
 
@@ -51,10 +62,6 @@ func (userStorage InMemoryUserStorage) Delete(key string) (User, error) {
 		return u, nil
 	}
 	err := errors.New("there is no such user")
-	empty := User{
-		Email:          "",
-		PasswordDigest: "",
-		FavoriteCake:   "",
-	}
+	empty := User{}
 	return empty, err
 }

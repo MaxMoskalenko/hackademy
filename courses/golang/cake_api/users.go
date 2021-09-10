@@ -11,7 +11,10 @@ import (
 type User struct {
 	Email          string
 	PasswordDigest string
+	Role           string
 	FavoriteCake   string
+	IsBan          bool
+	BanHistory     []BanLog
 }
 
 type UserRepository interface {
@@ -111,6 +114,7 @@ func (u *UserService) Register(w http.ResponseWriter, r *http.Request) {
 	newUser := User{
 		Email:          params.Email,
 		PasswordDigest: string(passwordDigest),
+		Role:           "user",
 		FavoriteCake:   params.FavoriteCake,
 	}
 
@@ -146,6 +150,11 @@ func (u *UserService) ShowMyCake(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if user.IsBan {
+		handleAccessError(errors.New("you were banned"), w)
+		return
+	}
+
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte(user.FavoriteCake))
 
@@ -168,12 +177,16 @@ func (u *UserService) ChangeCake(w http.ResponseWriter, r *http.Request) {
 		handleError(errors.New("invalid login params"), w)
 		return
 	}
+	if user.IsBan {
+		handleAccessError(errors.New("you were banned"), w)
+		return
+	}
 	if err := validateCake(params.NewCake); err != nil {
 		handleError(err, w)
 		return
 	}
 
-	newUser := User{params.Email, user.PasswordDigest, params.NewCake}
+	newUser := User{params.Email, user.PasswordDigest, user.Role, params.NewCake, false, []BanLog{}}
 	u.repository.Update(params.Email, newUser)
 
 	w.WriteHeader(http.StatusOK)
@@ -197,12 +210,16 @@ func (u *UserService) ChangeEmail(w http.ResponseWriter, r *http.Request) {
 		handleError(errors.New("invalid login params"), w)
 		return
 	}
+	if user.IsBan {
+		handleAccessError(errors.New("you were banned"), w)
+		return
+	}
 	if err := validateEmail(params.NewEmail); err != nil {
 		handleError(err, w)
 		return
 	}
 
-	newUser := User{params.NewEmail, user.PasswordDigest, user.FavoriteCake}
+	newUser := User{params.NewEmail, user.PasswordDigest, user.Role, user.FavoriteCake, false, []BanLog{}}
 	u.repository.Delete(params.Email)
 	u.repository.Add(params.NewEmail, newUser)
 	w.WriteHeader(http.StatusOK)
@@ -226,13 +243,17 @@ func (u *UserService) ChangePassword(w http.ResponseWriter, r *http.Request) {
 		handleError(errors.New("invalid login params"), w)
 		return
 	}
+	if user.IsBan {
+		handleAccessError(errors.New("you were banned"), w)
+		return
+	}
 	if err := validatePassword(params.NewPass); err != nil {
 		handleError(err, w)
 		return
 	}
 	newPasswordDigest := md5.New().Sum([]byte(params.NewPass))
 
-	newUser := User{params.Email, string(newPasswordDigest), user.FavoriteCake}
+	newUser := User{params.Email, string(newPasswordDigest), user.Role, user.FavoriteCake, false, []BanLog{}}
 	u.repository.Update(params.Email, newUser)
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte("password successful changed"))

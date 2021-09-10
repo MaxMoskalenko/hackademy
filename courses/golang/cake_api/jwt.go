@@ -51,6 +51,10 @@ func (u *UserService) JWT(w http.ResponseWriter, r *http.Request, jwtService *JW
 		handleError(errors.New("invalid login params"), w)
 		return
 	}
+	if user.IsBan {
+		handleAccessError(errors.New("you were banned"), w)
+		return
+	}
 	token, err := jwtService.GenearateJWT(user)
 	if err != nil {
 		handleError(err, w)
@@ -79,6 +83,7 @@ func (j *JWTService) jwtAuth(users UserRepository, h ProtectedHandler) http.Hand
 			rw.Write([]byte("unauthorized"))
 			return
 		}
+
 		h(rw, r, user)
 	}
 }
