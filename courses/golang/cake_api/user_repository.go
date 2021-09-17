@@ -26,6 +26,7 @@ func NewInMemoryUserStorage() *InMemoryUserStorage {
 	newStorage := make(map[string]User)
 	newStorage[os.Getenv("CAKE_ADMIN_EMAIL")] = sa
 
+	numberOfRegistered.Inc()
 	return &InMemoryUserStorage{
 		lock:    sync.RWMutex{},
 		storage: newStorage,

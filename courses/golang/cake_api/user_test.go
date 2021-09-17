@@ -69,6 +69,9 @@ func assertChanging(t *testing.T, expected string, actual string) {
 func TestUsers_JWT(t *testing.T) {
 
 	initEnv()
+
+	metrics()
+
 	doRequest := createRequester(t)
 	u := newTestUserService()
 

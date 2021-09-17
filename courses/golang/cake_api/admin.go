@@ -69,6 +69,7 @@ func handleAccessError(err error, w http.ResponseWriter) {
 }
 
 func (u *UserService) AdminPromote(w http.ResponseWriter, r *http.Request) {
+	startTime := time.Now()
 	params := &AdminOperationParams{}
 	err := json.NewDecoder(r.Body).Decode(params)
 
@@ -99,9 +100,12 @@ func (u *UserService) AdminPromote(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte("user was succesfully promoted"))
+	duration := time.Since(startTime)
+	responseTimeHistogram.WithLabelValues("/admin/promote").Observe(duration.Seconds())
 }
 
 func (u *UserService) AdminFire(w http.ResponseWriter, r *http.Request) {
+	startTime := time.Now()
 	params := &AdminOperationParams{}
 	err := json.NewDecoder(r.Body).Decode(params)
 
@@ -133,9 +137,12 @@ func (u *UserService) AdminFire(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte("admin was successfully fired"))
+	duration := time.Since(startTime)
+	responseTimeHistogram.WithLabelValues("/admin/fire").Observe(duration.Seconds())
 }
 
 func (u *UserService) UserBan(w http.ResponseWriter, r *http.Request) {
+	startTime := time.Now()
 	params := &UserBanParams{}
 	err := json.NewDecoder(r.Body).Decode(params)
 
@@ -179,9 +186,12 @@ func (u *UserService) UserBan(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte("user was succesfully banned"))
+	duration := time.Since(startTime)
+	responseTimeHistogram.WithLabelValues("/admin/ban").Observe(duration.Seconds())
 }
 
 func (u *UserService) UserUnban(w http.ResponseWriter, r *http.Request) {
+	startTime := time.Now()
 	params := &AdminOperationParams{}
 	err := json.NewDecoder(r.Body).Decode(params)
 
@@ -225,6 +235,8 @@ func (u *UserService) UserUnban(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte("user was succesfully unbanned"))
+	duration := time.Since(startTime)
+	responseTimeHistogram.WithLabelValues("/admin/unban").Observe(duration.Seconds())
 }
 
 func (j *JWTService) inspect(users UserRepository, h ProtectedHandler) http.HandlerFunc {

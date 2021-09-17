@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"errors"
+	"flag"
 	"log"
 	"net/http"
 	"os"
@@ -13,14 +14,23 @@ import (
 )
 
 func getCakeHandler(w http.ResponseWriter, r *http.Request, u User) {
+	startTime := time.Now()
+
 	if u.IsBan {
 		handleAccessError(errors.New("you were banned"), w)
 		return
 	}
 	w.Write([]byte(u.FavoriteCake))
+	duration := time.Since(startTime)
+	responseTimeHistogram.WithLabelValues("/cake").Observe(duration.Seconds())
+
+	// getCakeTime.Observe(float64())
+	numberOfCakesGiven.Inc()
 }
 
 func getHistoryHandler(w http.ResponseWriter, r *http.Request, u User) {
+	startTime := time.Now()
+
 	var history string
 	history += "User " + u.Email + " history\n"
 	for i := 0; i < len(u.BanHistory); i++ {
@@ -37,9 +47,19 @@ func getHistoryHandler(w http.ResponseWriter, r *http.Request, u User) {
 		}
 	}
 	w.Write([]byte(history))
+	duration := time.Since(startTime)
+	responseTimeHistogram.WithLabelValues("/admin/inspect").Observe(duration.Seconds())
 }
 
 func main() {
+	initEnv()
+
+	go sender()
+	go metrics()
+
+	flag.Parse()
+	hub := newHub()
+	go hub.run()
 	r := mux.NewRouter()
 	users := NewInMemoryUserStorage()
 	userService := UserService{repository: users}
@@ -48,7 +68,6 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	initEnv()
 
 	r.HandleFunc("/cake", logRequest(jwtService.jwtAuth(users, getCakeHandler))).Methods(http.MethodGet)
 	r.HandleFunc("/user/register", logRequest(userService.Register)).Methods(http.MethodPost)
@@ -63,6 +82,13 @@ func main() {
 	r.HandleFunc("/admin/fire", logRequest(userService.AdminFire)).Methods(http.MethodGet)
 	r.HandleFunc("/admin/ban", logRequest(userService.UserBan)).Methods(http.MethodGet)
 	r.HandleFunc("/admin/unban", logRequest(userService.UserUnban)).Methods(http.MethodGet)
+	r.HandleFunc("/admin/inspect", logRequest(jwtService.inspect(users, getHistoryHandler))).Methods(http.MethodGet)
+
+	//JWT=$(curl -X POST localhost:8000/user/jwt --data '{"email":"admin@mail.com","password":"admin1111"}')
+	//wscat -c ws://localhost:8000/ws -H Authorization:$JWT
+	r.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
+		serveWs(hub, w, r, jwtService, *users)
+	})
 
 	srv := http.Server{
 		Addr:    ":8000",

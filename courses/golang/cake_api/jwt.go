@@ -6,6 +6,7 @@ import (
 	"errors"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/openware/rango/pkg/auth"
 )
@@ -35,6 +36,7 @@ type JWTParams struct {
 }
 
 func (u *UserService) JWT(w http.ResponseWriter, r *http.Request, jwtService *JWTService) {
+	startTime := time.Now()
 	params := &JWTParams{}
 	err := json.NewDecoder(r.Body).Decode(params)
 	if err != nil {
@@ -62,6 +64,9 @@ func (u *UserService) JWT(w http.ResponseWriter, r *http.Request, jwtService *JW
 	}
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte(token))
+	duration := time.Since(startTime)
+	responseTimeHistogram.WithLabelValues("/user/jwt").Observe(duration.Seconds())
+
 }
 
 type ProtectedHandler func(rw http.ResponseWriter, r *http.Request, u User)

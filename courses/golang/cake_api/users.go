@@ -6,6 +6,7 @@ import (
 	"errors"
 	"net/http"
 	"regexp"
+	"time"
 )
 
 type User struct {
@@ -98,6 +99,7 @@ func validateRegisterParams(p *UserRegisterParams) error {
 	return nil
 }
 func (u *UserService) Register(w http.ResponseWriter, r *http.Request) {
+	startTime := time.Now()
 	params := &UserRegisterParams{}
 
 	err := json.NewDecoder(r.Body).Decode(params)
@@ -125,6 +127,10 @@ func (u *UserService) Register(w http.ResponseWriter, r *http.Request) {
 	}
 	w.WriteHeader(http.StatusCreated)
 	w.Write([]byte("registered"))
+	numberOfRegistered.Inc()
+
+	duration := time.Since(startTime)
+	responseTimeHistogram.WithLabelValues("/register").Observe(duration.Seconds())
 }
 func handleError(err error, w http.ResponseWriter) {
 	w.WriteHeader(http.StatusUnprocessableEntity)
@@ -132,7 +138,7 @@ func handleError(err error, w http.ResponseWriter) {
 }
 
 func (u *UserService) ShowMyCake(w http.ResponseWriter, r *http.Request) {
-
+	startTime := time.Now()
 	params := &JWTParams{}
 	err := json.NewDecoder(r.Body).Decode(params)
 	if err != nil {
@@ -157,10 +163,12 @@ func (u *UserService) ShowMyCake(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte(user.FavoriteCake))
-
+	duration := time.Since(startTime)
+	responseTimeHistogram.WithLabelValues("/user/me").Observe(duration.Seconds())
 }
 
 func (u *UserService) ChangeCake(w http.ResponseWriter, r *http.Request) {
+	startTime := time.Now()
 	params := &ChangeUserParams{}
 	err := json.NewDecoder(r.Body).Decode(params)
 	if err != nil {
@@ -191,9 +199,12 @@ func (u *UserService) ChangeCake(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte("cake successful changed"))
+	duration := time.Since(startTime)
+	responseTimeHistogram.WithLabelValues("/user/favorite_cake").Observe(duration.Seconds())
 }
 
 func (u *UserService) ChangeEmail(w http.ResponseWriter, r *http.Request) {
+	startTime := time.Now()
 	params := &ChangeUserParams{}
 	err := json.NewDecoder(r.Body).Decode(params)
 	if err != nil {
@@ -224,9 +235,12 @@ func (u *UserService) ChangeEmail(w http.ResponseWriter, r *http.Request) {
 	u.repository.Add(params.NewEmail, newUser)
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte("email successful changed"))
+	duration := time.Since(startTime)
+	responseTimeHistogram.WithLabelValues("/user/email").Observe(duration.Seconds())
 }
 
 func (u *UserService) ChangePassword(w http.ResponseWriter, r *http.Request) {
+	startTime := time.Now()
 	params := &ChangeUserParams{}
 	err := json.NewDecoder(r.Body).Decode(params)
 	if err != nil {
@@ -257,4 +271,6 @@ func (u *UserService) ChangePassword(w http.ResponseWriter, r *http.Request) {
 	u.repository.Update(params.Email, newUser)
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte("password successful changed"))
+	duration := time.Since(startTime)
+	responseTimeHistogram.WithLabelValues("/user/password").Observe(duration.Seconds())
 }
