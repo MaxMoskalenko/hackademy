@@ -5,7 +5,7 @@ RM					:= rm -rf
 
 LDFLAGS				+= -Llib
 
-CFLAGS				+= -Iinclude -Wall -Wextra -Werror -g
+CFLAGS				+= -Iinclude -Wall -Wextra -Werror -g -Wno-unused-variable -Wunused-parameter
 
 SRCS				:= $(wildcard src/*.c)
 

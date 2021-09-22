@@ -41,13 +41,16 @@ int       test_allocation()
   p = allocnode();
   success = (p != 0);
   free(p);
-  assert(!success == 0);
+  assert(!(success == 0));
 
   return (0);
 }
 
 void      remove_static(node_t *node)
 {
+    if(node->key == NULL){
+        NULL;
+    }
   NULL;
 }
 
